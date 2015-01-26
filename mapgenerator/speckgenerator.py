@@ -30,6 +30,7 @@ class SpeckGenerator:
 
     @staticmethod
     def get_density_function(x_center, y_center, amplitude_density, amplitude_wideness):
+        # Using closure like a pro
         def get_density(x, y):
             return amplitude_density*amplitude_wideness/(amplitude_wideness + math.hypot(x-x_center, y-y_center)**2)
         get_density.x_center = x_center
