@@ -5,8 +5,14 @@ import math
 import numpy as np
 import numpy.linalg as lin
 from scipy import interpolate
-from mapgenerator.worldmap import WorldMap
 
+
+class WorldMap:
+    # Пока что только высота
+    def __init__(self, x_cells_size, y_cells_size):
+        self.x_cells_size = x_cells_size
+        self.y_cells_size = y_cells_size
+        self.world_map = [[0]*self.x_cells_size for i in range(self.y_cells_size)]
 
 # Just for fun
 def hill_map_height_regular_constituent_closure(x_cells_size, y_cells_size, amplitude, alpha=None):
