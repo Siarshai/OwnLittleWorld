@@ -1,20 +1,13 @@
+from map.map import WorldMap
+
 __author__ = 'Siarshai'
 
 import random
 import math
 import numpy as np
 import numpy.linalg as lin
-from scipy import interpolate
 
-
-class WorldMap:
-    # Пока что только высота
-    def __init__(self, x_cells_size, y_cells_size):
-        self.x_cells_size = x_cells_size
-        self.y_cells_size = y_cells_size
-        self.world_map = [[0]*self.x_cells_size for i in range(self.y_cells_size)]
-
-# Just for fun
+# Closure - just for fun
 def hill_map_height_regular_constituent_closure(x_cells_size, y_cells_size, amplitude, alpha=None):
     x_midpoint = x_cells_size/2
     y_midpoint = y_cells_size/2
@@ -53,9 +46,9 @@ class HeightGenerator:
         for x in range(self.x_cells_size):
             for y in range(self.y_cells_size):
                 for k in range(len(self.generators)):
-                    wm.world_map[x][y] += self.generators[k].interpolate_linear(x, y)
+                    wm.world_map[x][y].h += self.generators[k].interpolate_linear(x, y)
                 #print(self.regular_constituent_function(x, y))
-                wm.world_map[x][y] += self.regular_constituent_function(x, y)
+                wm.world_map[x][y].h += self.regular_constituent_function(x, y)
         return wm
 
 
@@ -67,7 +60,7 @@ class PerlinGenerator2D:
                 or x_base_cells <= 0 or y_base_cells <= 0:
             raise AttributeError("Number of base dots must be positive and integer")
         if x_min > x_max or y_min > y_max:
-            raise AttributeError("Incorrect mapgenerator size")
+            raise AttributeError("Incorrect map size")
         if seed is not None:
             random.seed(seed)
         self.set_cells_num(x_base_cells, y_base_cells)
@@ -171,16 +164,16 @@ class PerlinGenerator2D:
         (k, b) = lin.solve([row1, row2], fcolumn) #necessary?
         return k*z + b
 
-    def interpolate_bicube(self):
-        # Писать бикубическую интерполяцию самостоятельно слишком морочно,
-        # воспользуюсь готовой реализацией
-        # TODO: поправить код, писалось ночью после кальяна
-        self.grid_x, self.grid_y = np.mgrid[self.x_min:self.x_max:self.x_dots_resolution,
-                                            self.y_min:self.y_max:self.y_dots_resolution]
-        self.points = []
-        self.values = []
-        for i in range(self.x_dots_resolution):
-            for j in range(self.y_dots_resolution):
-                self.points.append((i*self.x_step, j*self.y_step))
-                self.values.append(self.base_points[i][j])
-        return interpolate.griddata(self.points, self.values, (self.grid_x, self.grid_y), method='cubic')
+    # def interpolate_bicube(self):
+    #     # Писать бикубическую интерполяцию самостоятельно слишком морочно,
+    #     # воспользуюсь готовой реализацией
+    #     # TODO: поправить код, писалось ночью после кальяна
+    #     self.grid_x, self.grid_y = np.mgrid[self.x_min:self.x_max:self.x_dots_resolution,
+    #                                         self.y_min:self.y_max:self.y_dots_resolution]
+    #     self.points = []
+    #     self.values = []
+    #     for i in range(self.x_dots_resolution):
+    #         for j in range(self.y_dots_resolution):
+    #             self.points.append((i*self.x_step, j*self.y_step))
+    #             self.values.append(self.base_points[i][j])
+    #     return interpolate.griddata(self.points, self.values, (self.grid_x, self.grid_y), method='cubic')

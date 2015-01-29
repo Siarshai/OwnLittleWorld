@@ -1,5 +1,5 @@
 from plants.plant import *
-import random
+from plants.plantdnalibrary import PlantDNALibrary
 
 if __name__ == "__main__":
     plant = Plant()
