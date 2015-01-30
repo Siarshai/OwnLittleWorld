@@ -1,4 +1,4 @@
-from map.map import WorldMap
+from worldmap.map import WorldMap
 
 __author__ = 'Siarshai'
 
@@ -60,7 +60,7 @@ class PerlinGenerator2D:
                 or x_base_cells <= 0 or y_base_cells <= 0:
             raise AttributeError("Number of base dots must be positive and integer")
         if x_min > x_max or y_min > y_max:
-            raise AttributeError("Incorrect map size")
+            raise AttributeError("Incorrect worldmap size")
         if seed is not None:
             random.seed(seed)
         self.set_cells_num(x_base_cells, y_base_cells)

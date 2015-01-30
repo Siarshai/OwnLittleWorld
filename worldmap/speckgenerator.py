@@ -1,4 +1,5 @@
 __author__ = 'Siarshai'
+
 import random as rnd
 import math
 
