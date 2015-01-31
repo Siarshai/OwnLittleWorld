@@ -95,21 +95,22 @@ if __name__ == "__main__":
     plt.show()
 
 
-    wm[0, 0].plants_list.append(pp.Plant())
-    wm[10, 10].plants_list.append(pp.Plant())
-    wm[20, 20].plants_list.append(pp.Plant())
-    wm[30, 30].plants_list.append(pp.Plant())
-    wm[40, 40].plants_list.append(pp.Plant())
-    wm[50, 50].plants_list.append(pp.Plant())
-    wm[60, 60].plants_list.append(pp.Plant())
+    wm[0, 0].plant = pp.Plant()
+    wm[10, 10].plant = pp.Plant()
+    wm[20, 20].plant = pp.Plant()
+    wm[30, 30].plant = pp.Plant()
+    wm[40, 40].plant = pp.Plant()
+    wm[50, 50].plant = pp.Plant()
+    wm[60, 60].plant = pp.Plant()
+
+    specks_x, specks_y, specks_colors = wm.recompute_clean_map('plant')
+    specks_x, specks_y, specks_colors = np.array(specks_x), np.array(specks_y), np.array(specks_colors)
 
     fig = plt.figure(figsize=(8, 7))
     ax_plants = fig.add_subplot(1, 1, 1)
-    plant_map_mock = np.array(wm.recompute_clean_map('plant'))
-    p = ax_plants.pcolor(X/X_CELL_SIZE, Y/Y_CELL_SIZE, plant_map_mock, cmap=plt.get_cmap("BuGn"),
-                  vmin=abs(plant_map_mock).min(),
-                  vmax=abs(plant_map_mock).max())
-    cb = fig.colorbar(p, ax=ax_plants)
+    ax_plants.scatter(specks_x, specks_y, 50, specks_colors)
+    plt.xlim(0, X_CELL_SIZE)
+    plt.ylim(0, Y_CELL_SIZE)
     plt.show()
 
     for i in range(10):
@@ -117,11 +118,12 @@ if __name__ == "__main__":
         for i in range(20):
             wm.plants_turn()
 
+        specks_x, specks_y, specks_colors = wm.recompute_clean_map('plant')
+        specks_x, specks_y, specks_colors = np.array(specks_x), np.array(specks_y), np.array(specks_colors)
+
         fig = plt.figure(figsize=(8, 7))
         ax_plants = fig.add_subplot(1, 1, 1)
-        plant_map_mock = np.array(wm.recompute_clean_map('plant'))
-        p = ax_plants.pcolor(X/X_CELL_SIZE, Y/Y_CELL_SIZE, plant_map_mock, cmap=plt.get_cmap("BuGn"),
-                      vmin=abs(plant_map_mock).min(),
-                      vmax=abs(plant_map_mock).max())
-        cb = fig.colorbar(p, ax=ax_plants)
+        ax_plants.scatter(specks_x, specks_y, 50, specks_colors)
+        plt.xlim(0, X_CELL_SIZE)
+        plt.ylim(0, Y_CELL_SIZE)
         plt.show()

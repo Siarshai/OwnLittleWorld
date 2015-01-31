@@ -31,7 +31,7 @@ class Plant:
             return False
         self.ready_to_reproduce = True
         for key in common_utils.plants_basic_resources:
-            self.resources[key] += cell.resources[key]/(1+len(cell.plants_list)) - self.resources_consumption[key]
+            self.resources[key] += cell.resources[key] - self.resources_consumption[key]
             if self.resources[key] < 0:
                 self.health += self.resources[key]
                 self.resources[key] = 0
@@ -44,8 +44,9 @@ class Plant:
         return True
 
     def reproduction_discard_resources(self):
+        pass
         for key in common_utils.plants_basic_resources:
-            self.resources[key] -= (common_utils.MULTIPLIER_TO_REPRODUCE-1)*self.resources_consumption[key]
+            self.resources[key] /= common_utils.REPRODUCTION_PENALTY_DIVISOR
 
     def spawn_child(self):
         return Plant(self.dna)

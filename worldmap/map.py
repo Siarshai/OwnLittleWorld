@@ -1,5 +1,6 @@
 __author__ = 'Siarshai'
 
+import matplotlib.colors
 import common_utils
 import random
 # from plants.plant import Plant
@@ -11,8 +12,8 @@ class WorldMap:
             self.x = x
             self.y = y
             self.h = h
-            self.plants_list = []
-            self.animals_list = []
+            self.plant = None
+            self.animal = None
             self.resources = {}
             for attribute in common_utils.plants_basic_resources:
                 self.resources[attribute] = kwargs[attribute] if attribute in kwargs.keys() else 0
@@ -32,7 +33,19 @@ class WorldMap:
     def recompute_clean_map(self, attribute):
         if not WorldMap.validate_attribute(attribute):
             if attribute == "plant":
-                self.clean_maps[attribute] = [[len(self.world_map[x][y].plants_list) for x in range(self.x_cells_size)] for y in range(self.y_cells_size)]
+                specks_x = []
+                specks_y = []
+                specks_colors = []
+                for x in range(self.x_cells_size):
+                    for y in range(self.y_cells_size):
+                        if not self.world_map[x][y].plant is None:
+                            red = common_utils.number_of_trues(self.world_map[x][y].plant.dna["red"])/32
+                            green = common_utils.number_of_trues(self.world_map[x][y].plant.dna["green"])/32
+                            blue = common_utils.number_of_trues(self.world_map[x][y].plant.dna["blue"])/32
+                            specks_x.append(x)
+                            specks_y.append(y)
+                            specks_colors.append((red, green, blue))
+                return specks_x, specks_y, specks_colors
             else:
                 print("apply_map attribute error: ", attribute)
                 return None
@@ -71,19 +84,22 @@ class WorldMap:
         if x < 0:
             x = 0
         else:
-            if x >= self.x_cells_size: x = self.x_cells_size-1
+            if x >= self.x_cells_size:
+                x = self.x_cells_size - 1
         if y < 0:
             y = 0
         else:
-            if y >= self.y_cells_size: x = self.y_cells_size-1
+            if y >= self.y_cells_size:
+                y = self.y_cells_size - 1
         return x, y
 
     def plants_turn(self):
         for x in range(self.x_cells_size):
             for y in range(self.y_cells_size):
-                for plant in self.world_map[x][y].plants_list[:]:
+                plant = self.world_map[x][y].plant
+                if plant is not None:
                     if not plant.process_resources(self.world_map[x][y]):
-                        self.world_map[x][y].plants_list.remove(plant)
+                        self.world_map[x][y].plant = None
                     else:
                         if plant.ready_to_reproduce:
                             plant.reproduction_discard_resources()
@@ -91,7 +107,11 @@ class WorldMap:
                             target_x = x + random.randint(-2, 2)
                             target_y = y + random.randint(-2, 2)
                             target_x, target_y = self.adjust_point_to_map_borders(target_x, target_y)
-                            self.world_map[target_x][target_y].plants_list.append(plant.spawn_child())
+                            spawn = plant.spawn_child()
+                            if self.world_map[target_x][target_y].plant is None:
+                                self.world_map[target_x][target_y].plant = spawn
+                                # Note, that child plant will be actually born if target cell is empty,
+                                # but resources are taken anyway
 
     @staticmethod
     def validate_attribute(attribute):

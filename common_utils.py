@@ -15,6 +15,7 @@ colors_to_consumption = dict(zip(colors,
         zip(plants_basic_resources_min_consumption_per_turn, plants_basic_resources_consumption_increase_per_gene)))
 
 MULTIPLIER_TO_REPRODUCE = 10
+REPRODUCTION_PENALTY_DIVISOR = 4
 
 H2O_BASIC = 7.5
 H2O_PER_H_REDUCE = 1
