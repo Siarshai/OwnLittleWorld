@@ -7,6 +7,7 @@ import math
 import numpy as np
 import numpy.linalg as lin
 
+
 # Closure - just for fun
 def hill_map_height_regular_constituent_closure(x_cells_size, y_cells_size, amplitude, alpha=None):
     x_midpoint = x_cells_size/2
@@ -41,13 +42,11 @@ class HeightGenerator:
                                                      amplitude*(persistence**i)))
 
     def generate_map(self):
-        # self.regular_base_points_mask = [[0]*self.x_dots_resolution for i in range(self.y_dots_resolution)]
         wm = WorldMap(self.x_cells_size, self.y_cells_size)
         for x in range(self.x_cells_size):
             for y in range(self.y_cells_size):
                 for k in range(len(self.generators)):
                     wm.world_map[x][y].h += self.generators[k].interpolate_linear(x, y)
-                #print(self.regular_constituent_function(x, y))
                 wm.world_map[x][y].h += self.regular_constituent_function(x, y)
         return wm
 
@@ -63,32 +62,22 @@ class PerlinGenerator2D:
             raise AttributeError("Incorrect worldmap size")
         if seed is not None:
             random.seed(seed)
-        self.set_cells_num(x_base_cells, y_base_cells)
-        self.set_square(x_min, y_min, x_max, y_max)
-        self.set_amplitude(amplitude)
-        self.generate_base_points()
-
-    def generate_base_points(self):
-        # На самом деле нам нужно на одну опорную точку больше чем клеток
-        self.base_points = [[0]*self.x_dots_resolution for i in range(self.y_dots_resolution)]
-        for x in range(self.x_dots_resolution):
-            for y in range(self.y_dots_resolution):
-                self.base_points[x][y] += random.random()*self.amplitude
-
-    def set_amplitude(self, amplitude):
         self.amplitude = amplitude
-
-    def set_square(self, x_min, y_min, x_max, y_max):
+        # Задаём сколько точек нам понадобится
+        self.x_dots_resolution = int(x_base_cells + 1)
+        self.y_dots_resolution = int(y_base_cells + 1)
+        # Задаём квадрат, в котором выполняется интерполяция.
         self.x_min = x_min
         self.y_min = y_min
         self.x_max = x_max
         self.y_max = y_max
         self.x_step = (x_max - x_min)/(self.x_dots_resolution-1)
         self.y_step = (y_max - y_min)/(self.y_dots_resolution-1)
-
-    def set_cells_num(self, x_base_cells, y_base_cells):
-        self.x_dots_resolution = x_base_cells + 1
-        self.y_dots_resolution = y_base_cells + 1
+        # Генерируем опорные точки. Нам нужно на одну больше чем клеток.
+        self.base_points = [[0]*self.x_dots_resolution for i in range(self.y_dots_resolution)]
+        for x in range(self.x_dots_resolution):
+            for y in range(self.y_dots_resolution):
+                self.base_points[x][y] += random.random()*self.amplitude
 
     def interpolate_linear(self, x, y):
         if x < self.x_min or x > self.x_max:
@@ -129,7 +118,7 @@ class PerlinGenerator2D:
                                                    self.base_points[x_n_low][y_n_med],
                                                    self.base_points[x_n_high][y_n_med],
                                                    x)
-            # обе точки лежат между опорными значениями
+            # Обе точки лежат между опорными значениями
             # интерполирем вспомогательные точки на сетке по оси ординат,
             # затем используем их, чтобы получить значение в требуемой точке
             y_n_low = int(y_num)
@@ -155,25 +144,11 @@ class PerlinGenerator2D:
 
     @staticmethod
     def interpolate_linear_clean(z1, z2, f1, f2, z):
-        # решаем систему линейных уравнений, чтобы восстановаить коэффициенты
+        # Решаем систему линейных уравнений, чтобы восстановаить коэффициенты
         # интерполирующей параболы и возвращаем значение в требуемой точке
-        # print(z1, z2, f1, f2, z)
+        # lin.solve() просто потому что я сам написал уже достаточно решалок СЛАУ
         row1 = [z1, 1]
         row2 = [z2, 1]
         fcolumn = [f1, f2]
-        (k, b) = lin.solve([row1, row2], fcolumn) #necessary?
+        (k, b) = lin.solve([row1, row2], fcolumn)
         return k*z + b
-
-    # def interpolate_bicube(self):
-    #     # Писать бикубическую интерполяцию самостоятельно слишком морочно,
-    #     # воспользуюсь готовой реализацией
-    #     # TODO: поправить код, писалось ночью после кальяна
-    #     self.grid_x, self.grid_y = np.mgrid[self.x_min:self.x_max:self.x_dots_resolution,
-    #                                         self.y_min:self.y_max:self.y_dots_resolution]
-    #     self.points = []
-    #     self.values = []
-    #     for i in range(self.x_dots_resolution):
-    #         for j in range(self.y_dots_resolution):
-    #             self.points.append((i*self.x_step, j*self.y_step))
-    #             self.values.append(self.base_points[i][j])
-    #     return interpolate.griddata(self.points, self.values, (self.grid_x, self.grid_y), method='cubic')
